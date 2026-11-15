@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini Web2API &mdash; Connect</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card-bg: rgba(28, 28, 30, 0.72);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --card-inner: rgba(255, 255, 255, 0.05);
+      --text-primary: #f5f5f7;
+      --text-secondary: #86868b;
+      --accent: #0a84ff;
+      --accent-hover: #0071e3;
+      --accent-glow: rgba(10, 132, 255, 0.25);
+      --success: #30d158;
+      --success-glow: rgba(48, 209, 88, 0.2);
+      --warning: #ffd60a;
+      --danger: #ff453a;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      --spring: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 80px;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 80% 30%, rgba(94, 92, 230, 0.08) 0%, transparent 50%);
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      max-width: 680px;
+      margin-bottom: 36px;
+      animation: fadeIn 0.6s var(--spring);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      backdrop-filter: blur(12px);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    h1 {
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.75) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--text-secondary);
+    }
+
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+      transition: border-color 0.25s ease;
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+    }
+
+    .step-number {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background: rgba(10, 132, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* Instruction Accordion / Guide */
+    .instructions {
+      background: var(--card-inner);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 22px;
+      font-size: 13.5px;
+      color: #d1d1d6;
+      line-height: 1.6;
+    }
+
+    .instructions-title {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cookie-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .cookie-pill {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #79c0ff;
+    }
+
+    .cookie-pill.required {
+      color: #ff7b72;
+      border-color: rgba(255, 123, 114, 0.3);
+      background: rgba(255, 123, 114, 0.08);
+    }
+
+    /* Inputs */
+    textarea {
+      width: 100%;
+      height: 120px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      color: var(--text-primary);
+      resize: vertical;
+      outline: none;
+      transition: all 0.2s var(--spring);
+      margin-bottom: 16px;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea::placeholder {
+      color: #48484a;
+    }
+
+    /* Buttons */
+    .button-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 42px;
+      padding: 0 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      user-select: none;
+      transition: transform 120ms var(--spring), background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Status banner */
+    .status-toast {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-top: 16px;
+      font-size: 13.5px;
+      animation: slideUp 0.3s var(--spring);
+    }
+
+    .status-toast.success {
+      display: flex;
+      background: rgba(48, 209, 88, 0.12);
+      border: 1px solid rgba(48, 209, 88, 0.3);
+      color: #30d158;
+    }
+
+    .status-toast.error {
+      display: flex;
+      background: rgba(255, 69, 58, 0.12);
+      border: 1px solid rgba(255, 69, 58, 0.3);
+      color: #ff453a;
+    }
+
+    /* Connection Card (Final output) */
+    .api-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .api-item {
+      background: var(--card-inner);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .api-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .api-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      color: #fff;
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .copy-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 120ms var(--spring);
+      flex-shrink: 0;
+    }
+
+    .copy-pill:active {
+      transform: scale(0.94);
+    }
+
+    .copy-pill.copied {
+      background: var(--success);
+      color: #000;
+      border-color: var(--success);
+    }
+
+    /* Tabs for chatbots */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 4px;
+      border-radius: 12px;
+      margin: 18px 0 14px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s var(--spring);
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      color: #d1d1d6;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      position: relative;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .tab-copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge">
+      <span class="badge-dot"></span>
+      gemini-web2api v2 &bull; Local Gateway
+    </div>
+    <h1>Connect Any Chatbot</h1>
+    <p>Convert your Google Gemini Web session into a standard OpenAI-compatible API running locally on your machine.</p>
+  </header>
+
+  <div class="container">
+
+    <!-- Card 1: Cookie Configuration & Guide -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
+              <path d="M8.5 8.5v.01"></path>
+              <path d="M16 15.5v.01"></path>
+              <path d="M12 12v.01"></path>
+              <path d="M11 17v.01"></path>
+              <path d="M7 13v.01"></path>
+            </svg>
+          </div>
+          Google Gemini Session Cookies
+        </div>
+        <span class="step-number">Step 1</span>
+      </div>
+
+      <div class="instructions">
+        <div class="instructions-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          How to get your cookies (Choose Method A or B):
+        </div>
+
+        <div style="background: rgba(10, 132, 255, 0.08); border: 1px solid rgba(10, 132, 255, 0.2); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+          <strong style="color: #5ac8fa;">⚡ Method A (Fastest &amp; Easiest): Using Cookie-Editor Extension</strong>
+          <ol style="margin-left: 20px; margin-top: 6px;">
+            <li>Go to <a href="https://gemini.google.com" target="_blank" style="color: #0a84ff; text-decoration: none;">gemini.google.com</a> in your browser.</li>
+            <li>Click the <strong>Cookie-Editor</strong> extension icon in your toolbar.</li>
+            <li>Click <strong>Export</strong> at the bottom &rarr; choose either <strong>Header String</strong> or <strong>JSON</strong>.</li>
+            <li>Paste directly into the text box below (both formats are auto-detected)!</li>
+          </ol>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px;">
+          <strong style="color: #d1d1d6;">🛠️ Method B: Using Chrome DevTools (No Extension)</strong>
+          <ol style="margin-left: 20px; margin-top: 6px;">
+            <li>Press <strong>F12</strong> on <a href="https://gemini.google.com" target="_blank" style="color: #0a84ff; text-decoration: none;">gemini.google.com</a> &rarr; go to <strong>Application</strong> &rarr; <strong>Cookies</strong>.</li>
+            <li>Copy the values or full header string.</li>
+          </ol>
+        </div>
+
+        <div class="cookie-list" style="margin-top: 14px;">
+          <span class="cookie-pill required">__Secure-1PSID</span>
+          <span class="cookie-pill required">SAPISID</span>
+          <span class="cookie-pill">__Secure-1PSIDTS</span>
+          <span class="cookie-pill">SID</span>
+          <span class="cookie-pill">HSID</span>
+          <span class="cookie-pill">SSID</span>
+          <span class="cookie-pill">APISID</span>
+        </div>
+      </div>
+
+      <textarea id="cookieInput" placeholder="Paste your Cookie string here (e.g. SID=xxx; HSID=yyy; SAPISID=zzz; __Secure-1PSID=aaa...)"></textarea>
+
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+            XSRF Token (SNlM0e) &bull; <span style="color: #ffd60a;">Required by Google for cookies</span>
+          </label>
+          <span style="font-size: 11px; color: #86868b;">Run in F12 Console: <code style="color: #5ac8fa; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">copy(WIZ_global_data.SNlM0e)</code></span>
+        </div>
+        <input type="text" id="xsrfInput" placeholder="Optional (auto-detected, or paste SNlM0e if you see HTTP 400)" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 14px; font-family: monospace; font-size: 12.5px; color: #fff; outline: none;">
+      </div>
+
+      <div class="button-row">
+        <button class="btn btn-secondary" onclick="clearCookies()">Clear / Reset</button>
+        <button class="btn btn-secondary" onclick="useAnonymous()">Use Anonymous (No Cookies)</button>
+        <button class="btn btn-primary" onclick="saveAndTestCookie()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Save &amp; Test Connection
+        </button>
+      </div>
+
+      <div id="statusToast" class="status-toast"></div>
+    </div>
+
+    <!-- Card 2: Final Ready-To-Use API -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Your Ready-to-Use API
+          </div>
+          <span class="step-number" style="color: var(--success); background: var(--success-glow);">Step 2</span>
+        </div>
+
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+          Plug these values into any AI chatbot or coding assistant:
+        </p>
+
+        <div class="api-grid">
+          <div class="api-item">
+            <div>
+              <div class="api-label">Base URL</div>
+              <div class="api-val" id="apiBaseUrl">http://localhost:8081/v1</div>
+            </div>
+            <button class="copy-pill" onclick="copyVal('http://localhost:8081/v1', this)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy
+            </button>
+          </div>
+
+          <div class="api-item">
+            <div>
+              <div class="api-label">API Key</div>
+              <div class="api-val">sk-gemini (or anything)</div>
+            </div>
+            <button class="copy-pill" onclick="copyVal('sk-gemini', this)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy
+            </button>
+          </div>
+
+          <div class="api-item">
+            <div>
+              <div class="api-label">Recommended Models</div>
+              <div class="api-val" style="color: #a1a1a6;">
+                <strong style="color: #fff;">gemini-4-hydrogen</strong> (Everyday help)<br>
+                <strong style="color: #fff;">gemini-4-argon</strong> (Code &amp; Analysis)<br>
+                <strong style="color: #fff;">gemini-3.1-pro</strong> (Detailed research)<br>
+                <strong style="color: #fff;">gemini-3.5-flash-lite</strong> (Quick answers)
+              </div>
+            </div>
+            <button class="copy-pill" onclick="copyVal('gemini-4-hydrogen', this)">Copy Default</button>
+          </div>
+        </div>
+
+        <!-- Chatbot Config Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('cursor', this)">Cursor / IDE</button>
+          <button class="tab-btn" onclick="switchTab('chatbox', this)">ChatBox / Cherry</button>
+          <button class="tab-btn" onclick="switchTab('python', this)">Python SDK</button>
+          <button class="tab-btn" onclick="switchTab('curl', this)">cURL</button>
+        </div>
+
+        <div id="tab-cursor" class="tab-content active">
+<button class="copy-pill tab-copy-btn" onclick="copySnippet('cursor', this)">Copy</button>
+// Settings -> Models -> OpenAI API Key:
+Base URL: http://localhost:8081/v1
+API Key:  sk-gemini
+
+// Models to add:
+- gemini-4-hydrogen (Everyday help & agentic coding)
+- gemini-4-argon    (Frontier reasoning & complex problems)
+</div>
+
+        <div id="tab-chatbox" class="tab-content">
+<button class="copy-pill tab-copy-btn" onclick="copySnippet('chatbox', this)">Copy</button>
+Provider:      OpenAI API
+API Host:      http://localhost:8081
+Path:          /v1/chat/completions
+API Key:       sk-gemini
+Model:         gemini-4-hydrogen
+</div>
+
+        <div id="tab-python" class="tab-content">
+<button class="copy-pill tab-copy-btn" onclick="copySnippet('python', this)">Copy</button>
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8081/v1",
+    api_key="sk-gemini"
+)
+
+response = client.chat.completions.create(
+    model="gemini-4-hydrogen",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+print(response.choices[0].message.content)
+</div>
+
+        <div id="tab-curl" class="tab-content">
+<button class="copy-pill tab-copy-btn" onclick="copySnippet('curl', this)">Copy</button>
+curl http://localhost:8081/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-gemini" \
+  -d '{
+    "model": "gemini-4-hydrogen",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+</div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Copy helper
+    function copyVal(val, btn) {
+      navigator.clipboard.writeText(val);
+      const original = btn.innerHTML;
+      btn.classList.add('copied');
+      btn.textContent = 'Copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = original;
+      }, 1500);
+    }
+
+    function copySnippet(id, btn) {
+      const el = document.getElementById('tab-' + id);
+      const text = el.innerText.replace('Copy', '').trim();
+      copyVal(text, btn);
+    }
+
+    // Switch tab
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    // Save & test cookie
+    async function saveAndTestCookie() {
+      const raw = document.getElementById('cookieInput').value.trim();
+      const xsrf = document.getElementById('xsrfInput').value.trim();
+      const toast = document.getElementById('statusToast');
+      toast.className = 'status-toast';
+      toast.style.display = 'none';
+
+      if (!raw) {
+        toast.className = 'status-toast error';
+        toast.innerHTML = '⚠️ Please paste a cookie string first, or click "Use Anonymous".';
+        toast.style.display = 'flex';
+        return;
+      }
+
+      toast.className = 'status-toast';
+      toast.innerHTML = '⏳ Saving cookies and testing connection to Gemini Web...';
+      toast.style.display = 'flex';
+
+      try {
+        const res = await fetch('/api/cookie', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cookie: raw, xsrf_token: xsrf })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          localStorage.setItem('gemini_cookie', raw);
+          if (xsrf) {
+            localStorage.setItem('gemini_xsrf', xsrf);
+          }
+          toast.className = 'status-toast success';
+          toast.innerHTML = '✨ <strong>Connected!</strong> Cookie verified and permanently saved. Ready to connect your chatbot.';
+        } else {
+          toast.className = 'status-toast error';
+          toast.innerHTML = '❌ ' + (data.error || 'Connection failed. Please check cookie format.');
+        }
+      } catch (e) {
+        toast.className = 'status-toast error';
+        toast.innerHTML = '❌ Server error: ' + e.message;
+      }
+    }
+
+    // Use anonymous
+    async function useAnonymous() {
+      localStorage.removeItem('gemini_cookie');
+      localStorage.removeItem('gemini_xsrf');
+      document.getElementById('cookieInput').value = '';
+      document.getElementById('xsrfInput').value = '';
+
+      const toast = document.getElementById('statusToast');
+      toast.className = 'status-toast success';
+      toast.innerHTML = '✨ <strong>Anonymous mode active!</strong> Gemini 4 Hydrogen and Argon are ready without cookies.';
+      toast.style.display = 'flex';
+      try {
+        await fetch('/api/cookie', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cookie: '' })
+        });
+      } catch(e) {}
+    }
+
+    // Clear / Reset
+    async function clearCookies() {
+      localStorage.removeItem('gemini_cookie');
+      localStorage.removeItem('gemini_xsrf');
+      document.getElementById('cookieInput').value = '';
+      document.getElementById('xsrfInput').value = '';
+      const toast = document.getElementById('statusToast');
+      toast.className = 'status-toast';
+      toast.style.display = 'none';
+      try {
+        await fetch('/api/cookie', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cookie: '' })
+        });
+      } catch(e) {}
+    }
+
+    // Auto-restore on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+      const savedCookie = localStorage.getItem('gemini_cookie');
+      const savedXsrf = localStorage.getItem('gemini_xsrf');
+      if (savedCookie) {
+        document.getElementById('cookieInput').value = savedCookie;
+      }
+      if (savedXsrf) {
+        document.getElementById('xsrfInput').value = savedXsrf;
+      }
+
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        const toast = document.getElementById('statusToast');
+        if (data.has_cookie || (savedCookie && savedXsrf)) {
+          toast.className = 'status-toast success';
+          toast.innerHTML = '✨ <strong>Connected!</strong> Saved session is active and ready for your chatbot.';
+          toast.style.display = 'flex';
+        }
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>
