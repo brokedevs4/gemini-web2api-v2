@@ -1,5 +1,9 @@
 # gemini-web2api v2
 
+<p align="center">
+  <img src="logo.png" width="180" alt="gemini-web2api logo">
+</p>
+
 Convert Google Gemini's web interface into an OpenAI-compatible and Google Gemini CLI-compatible API.
 
 This updated version reverse engineers the latest **Gemini Web UI** (including **Gemini 4 Hydrogen**, **Gemini 4 Argon**, **Gemini 3.1 Pro**, **Gemini 3.5 Flash-Lite**, and configurable **Thinking levels**).
